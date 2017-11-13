@@ -1,3 +1,5 @@
+This is a fork of the OpenAI Baselines, in order to add some enhancements needed mainly for the [DRL Autonomous Vehicles project](https://github.com/kaihuchen/DRL-AutonomousVehicles)
+
 <img src="data/logo.jpg" width=25% align="right" />
 
 # Baselines
