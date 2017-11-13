@@ -96,7 +96,8 @@ def learn(env,
           prioritized_replay_beta_iters=None,
           prioritized_replay_eps=1e-6,
           param_noise=False,
-          callback=None):
+          callback=None,
+          load_state=None):
     """Train a deepq model.
 
     Parameters
@@ -155,7 +156,8 @@ def learn(env,
     callback: (locals, globals) -> None
         function called at every steps with state of the algorithm.
         If callback returns true training stops.
-
+    load_state: file path
+        given pre-training model file path, deepq will train with pre-training variables
     Returns
     -------
     act: ActWrapper
@@ -209,6 +211,21 @@ def learn(env,
 
     # Initialize the parameters and copy them to the target network.
     U.initialize()
+    if load_state is not None:
+        try: 
+            with open(load_state, "rb") as f:
+                model_data, act_params = cloudpickle.load(f)
+            with tempfile.TemporaryDirectory() as td:
+                arc_path = os.path.join(td, "packed.zip")
+                with open(arc_path, "wb") as f:
+                    f.write(model_data)
+                zipfile.ZipFile(arc_path, 'r', zipfile.ZIP_DEFLATED).extractall(td)
+                U.load_state(os.path.join(td, "model"))
+                logger.log("Load pretrain model!")
+            pass
+        except FileNotFoundError as e:
+            logger.log("No pretrain model found!")
+            pass
     update_target()
 
     episode_rewards = [0.0]
